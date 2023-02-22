@@ -1,0 +1,233 @@
+#!/bin/bash
+#author: Shantanu Dey Anik
+#version: 1.0.0
+#last modified: Feb 14, 2023
+
+me=`basename "$0"`
+
+tput clear
+function banner(){
+
+	echo -e ' ____  _____  ___  _  _  ____  ____  ___   ___  ____ '
+	echo -e '(  _ \(  _  )/ __)( )/ )( ___)(_  _)/ __) / __)(  _ \'
+	echo -e ' )   / )(_)(( (__  )  (  )__)   )(  \__ \( (__  )___/'
+	echo -e '(_)\_)(_____)\___)(_)\_)(____) (__) (___/ \___)(__)  '
+
+
+	echo -e "\nTools for Rocket Engineers. ;p \nThis tool is only for pulling files to the current machine named '$HOSTNAME'. using scp."
+	echo -e "$(echo QXV0aG9yOiBcZVsxOzMybVNoYW50YW51IGRleSBhbmlrXGVbMG0K|base64 -d)"
+	echo -e "Github: https://github.com/shantanu2645/\n"
+}
+
+function lazyhelp(){
+	echo -e "e.g. '\e[3;31mbash rocketscp -f list.txt\e[0m'"
+	echo -e "e.g. '\e[3;31mbash rocketscp -f /home/username/list.txt\e[0m'\n"
+	echo -e "-h 'help menu for rocketscp'"
+}
+
+function start(){
+	filename=$1
+
+	if ! which sshpass > /dev/null;then
+		echo -e "\e[3;31msshpass is not installed\e[0m"
+		echo -e "Please install sshpass for one-time password entry.\n Here are the installation instructions:\n \e[1;34mhttps://www.tecmint.com/sshpass-non-interactive-ssh-login-shell-script-ssh-password/\e[0m\n"
+
+		while true; do
+			read -p "Do you want to proceed with manual password entry every time? (y/N)" yn
+			case $yn in
+				[Yy] ) main "manual" ; break;;
+				[Nn] ) sleep 1; echo "Good Bye";exit ;;
+				[*] ) echo -e "\nInvalid Input" ;;
+			esac
+		done
+	else
+		main "auto"
+	fi
+}
+
+function main(){
+	tput clear
+	banner
+	read -p "Enter username (Remote HOST login) : " username
+	while [[ $username == "" || $username ==  *['!'@#\$%^\&*()+\|/\^\[\]\=\~\`\,\"\;\:\?\>\<\\]* ]] ; do
+		echo -e "\e[41mUsername cannot be blank or contain special characters.\e[0m"
+		read -p "Enter username (Remote HOST login) : " username
+	done
+
+
+	ipreg="^([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])$"
+
+	read -p "Remote Host IP addr. (e.g 8.8.8.8) : " ip
+	while ! echo $ip | grep -E "$ipreg" &> /dev/null ; do
+		echo -e "\e[31mNot a valid IP address.\e[0m"
+		read -p "Remote Host IP addr. (e.g 8.8.8.8) : " ip
+
+	done
+
+	while true; do
+		read -p "Specify Remote IP port (Default 22): " port
+		if [[ $port == "" ]] || [[ "$port" =~ ^[0-9]+$  ]] ; then
+
+			if [[ $port == "" ]]; then
+				dport=22
+			else
+				dport=$port
+			fi
+
+			if [[ $dport -gt 0 && $dport -lt 65535 ]]; then
+				break
+			else
+				echo -e "\e[31mOps! Maybe the port is not valid.\e[0m"
+			fi	
+		else
+			echo -e "\e[31mOps! Maybe the port is not valid.\e[0m"
+			#statements
+		fi
+	done
+
+	read -p "Src root path (e.g. /var/www/html/): " src
+	while ! echo $src | grep "^/.*/$" &> /dev/null ;do
+		# if [[ $src == *[\|]*
+		echo -e "\e[31mOps!! Something went wrong.\e[0m"
+		echo -e "\e[43mMust be start and end with forward slash '/' \e[0m"
+		read -p "Src root path (e.g. /var/www/html/): " src
+	done
+	# src=$(echo $src | sed -e 's/ /\\ /g')
+
+	read -p "Dst root path (e.g. /var/www/html/): " dst
+
+	while ! echo $dst | grep "^/.*/$" &> /dev/null ; do
+		echo -e "\e[31mOps!! Something went wrong.\e[0m"
+		echo -e "\e[43mmust be start and end with forward slash '/' \e[0m"
+		read -p "Dst root path (e.g. /var/www/html/): " dst
+	done
+	# dst=$(echo $dst | sed -e 's/ /\\ /g')
+
+
+
+	read -s -p "Enter password for scp             : " pass
+	echo -e "\n"
+
+	echo "Checking if the remote host is responding or not......"
+	if ping -c 4 $ip &> /dev/null;then	
+
+		tput clear
+		banner
+
+		while read -p "Do you want to take backup? (y/N) : " backup;do
+			case $backup in 
+				[Yy] ) echo "Backing up......."
+						folder=$(mkdir $(date "+%d.%m.%Y_%s")"backup" -v | cut -d " " -f4 | cut -d "'" -f2)
+						for bfiles in $(cat $filename); do	
+							
+							cperr=$(cp -r "$dst$bfiles" "$folder" 2>&1)
+
+							if [[ $? -ne 0 ]]; then
+								echo -e "\e[31mPlease check error log: $bfiles\e[0m"
+								echo $cperr >> log.txt
+							else
+								echo -e "\e[32mCompleted file backup : $bfiles\e[0m"
+							fi
+						done
+						echo -e "Files are saved in $folder folder"
+
+							DURATION=10
+							for ((i=$DURATION; i>=0; i--)); do
+							    printf "\r%d seconds remaining for launching next process." $i
+							    sleep 1
+							done
+
+							printf "\n"
+
+						break
+						;;
+				[Nn] ) break
+						;;
+				[*]  ) ;; 
+			esac
+
+		done
+
+		tput clear
+		banner
+
+		result=""
+		for file in $(cat $filename); do
+			echo "scp -P $dport -r $username@$ip:$src$file $dst$file"
+			if [[ $1 == "manual" ]]; then
+				error=$(scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$dst$file" 2>&1) 
+			elif [[ $1 == "auto" ]]; then
+				error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$dst$file" 2>&1) 
+			else 
+				exit
+			fi
+
+			# if [[ $? -eq 1 || $? -eq 5 || $? -eq 255 ]]; then 
+			if [[ $? -ne 0 ]]; then
+				echo $error >> log.txt
+				echo -e "\e[31mFailed. Check error log\e[0m"
+			else
+				echo -e "\033[1;32mSuccessful.\033[0m"
+				echo "$dst$file" >> success.txt
+			fi
+		done
+
+
+		if ls success.txt &> /dev/null
+		then
+			echo -e "\n\nSuccessfully pulled files:-"
+			for s in $(cat success.txt);do
+				echo -e "\033[1;32m$(find $s -type f -exec stat --format="%y" {} \;)\033[0m  $s"
+			done
+			rm success.txt
+
+		else
+			echo ""
+		fi
+		
+		if ls log.txt &> /dev/null; then
+			echo -e "\n\nHere is the error Log:- "
+			uniq -c log.txt
+			rm log.txt
+		else
+			# tput clear
+			# banner
+			echo ""
+		fi
+	else
+		echo "The remote host is not responding."
+		echo "Exiting for now , Tata, Byeeeeeeeee"
+		sleep 1
+	fi
+}
+
+banner
+
+if which scp &> /dev/null; then
+	while getopts ":f:h:" flag
+	do
+		case "${flag}" in
+		        f) filename=${OPTARG} 
+					
+					if ls $filename &> /dev/null; then
+						start $filename
+					else
+						echo -e "\e[31m$filename not found or not valid\e[0m"
+					fi
+						;;
+				h) lazyhelp;;
+				\?) echo "Invalid Syntex. Try :-" ; lazyhelp;;
+				*) lazyhelp;;
+		esac
+	done
+else
+	echo -e "\e[41m\nscp not installed!\n\e[0m"
+	lazyhelp
+fi
+
+ls rocketscp &> /dev/null
+if ! ls rocketscp &> /dev/null; then
+	mv $me rocketscp
+else
+	exit
+fi 
