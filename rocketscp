@@ -155,7 +155,7 @@ function main(){
 		for file in $(cat $filename); do
 
 			p_dir=$(dirname $dst$file)
-			echo $p_dir
+			#echo $p_dir
 
 			if [[ ! -d $p_dir ]]; then
 				
@@ -164,9 +164,9 @@ function main(){
 
 				echo "scp -P $dport -r $username@$ip:$src$file $p_dir"
 				if [[ $1 == "manual" ]]; then
-					error=$(scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+					error=$(scp -o StrictHostKeyChecking=no -P "$dport" "$username@$ip:$src$file" "$p_dir" 2>&1) 
 				elif [[ $1 == "auto" ]]; then
-					error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+					error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" "$username@$ip:$src$file" "$p_dir" 2>&1) 
 				else 
 					exit
 				fi
@@ -183,9 +183,9 @@ function main(){
 
 				echo "scp -P $dport -r $username@$ip:$src$file $p_dir"
 				if [[ $1 == "manual" ]]; then
-					error=$(scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+					error=$(scp -o StrictHostKeyChecking=no -P "$dport" "$username@$ip:$src$file" "$p_dir" 2>&1) 
 				elif [[ $1 == "auto" ]]; then
-					error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+					error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" "$username@$ip:$src$file" "$p_dir" 2>&1) 
 				else 
 					exit
 				fi
