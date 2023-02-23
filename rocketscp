@@ -133,6 +133,7 @@ function main(){
 
 							DURATION=10
 							for ((i=$DURATION; i>=0; i--)); do
+								echo "Script will not recursively copy file and directories."
 							    printf "\r%d seconds remaining for launching next process." $i
 							    sleep 1
 							done
