@@ -58,7 +58,7 @@ function main(){
 	ipreg="^([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])\.([01]?[0-9]{1,2}|2[0-4][0-9]|25[0-5])$"
 
 	read -p "Remote Host IP addr. (e.g 8.8.8.8) : " ip
-	while ! echo $ip | grep -E "$ipreg" &> /dev/null ; do
+	while ! echo $ip | grep -E "$ipreg" &> /dev/null  ; do
 		echo -e "\e[31mNot a valid IP address.\e[0m"
 		read -p "Remote Host IP addr. (e.g 8.8.8.8) : " ip
 
@@ -153,31 +153,61 @@ function main(){
 
 		result=""
 		for file in $(cat $filename); do
-			echo "scp -P $dport -r $username@$ip:$src$file $dst$file"
-			if [[ $1 == "manual" ]]; then
-				error=$(scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$dst$file" 2>&1) 
-			elif [[ $1 == "auto" ]]; then
-				error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$dst$file" 2>&1) 
-			else 
-				exit
+
+			p_dir=$(dirname $dst$file)
+			echo $p_dir
+
+			if [[ ! -d $p_dir ]]; then
+				
+				echo -e "parent directory is not available\nmaking new folder."
+				mkdir -p $p_dir
+
+				echo "scp -P $dport -r $username@$ip:$src$file $p_dir"
+				if [[ $1 == "manual" ]]; then
+					error=$(scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+				elif [[ $1 == "auto" ]]; then
+					error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+				else 
+					exit
+				fi
+
+				# if [[ $? -eq 1 || $? -eq 5 || $? -eq 255 ]]; then 
+				if [[ $? -ne 0 ]]; then
+					echo $error >> log.txt
+					echo -e "\e[31mFailed. Check error log\e[0m"
+				else
+					echo -e "\033[1;32mSuccessfully.\033[0m"
+					echo "$dst$file" >> success.txt
+				fi
+			else
+
+				echo "scp -P $dport -r $username@$ip:$src$file $p_dir"
+				if [[ $1 == "manual" ]]; then
+					error=$(scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+				elif [[ $1 == "auto" ]]; then
+					error=$(sshpass -p "$pass" scp -o StrictHostKeyChecking=no -P "$dport" -r "$username@$ip:$src$file" "$p_dir" 2>&1) 
+				else 
+					exit
+				fi
+
+				# if [[ $? -eq 1 || $? -eq 5 || $? -eq 255 ]]; then 
+				if [[ $? -ne 0 ]]; then
+					echo $error >> log.txt
+					echo -e "\e[31mFailed. Check error log\e[0m"
+				else
+					echo -e "\033[1;32mSuccessful.\033[0m"
+					echo "$dst$file" >> success.txt
+				fi
 			fi
 
-			# if [[ $? -eq 1 || $? -eq 5 || $? -eq 255 ]]; then 
-			if [[ $? -ne 0 ]]; then
-				echo $error >> log.txt
-				echo -e "\e[31mFailed. Check error log\e[0m"
-			else
-				echo -e "\033[1;32mSuccessful.\033[0m"
-				echo "$dst$file" >> success.txt
-			fi
 		done
 
 
-		if ls success.txt &> /dev/null
+		if [ -f success.txt ] &> /dev/null
 		then
 			echo -e "\n\nSuccessfully pulled files:-"
 			for s in $(cat success.txt);do
-				echo -e "\033[1;32m$(find $s -type f -exec stat --format="%y" {} \;)\033[0m  $s"
+				echo -e "$(find $s -exec sh -c 'echo "\033[1;32m$(stat --format="%y" $0) \033[0m  $0"' {} \;)"
 			done
 			rm success.txt
 
@@ -185,7 +215,7 @@ function main(){
 			echo ""
 		fi
 		
-		if ls log.txt &> /dev/null; then
+		if [ -f log.txt ] ; then # &> /dev/null; then
 			echo -e "\n\nHere is the error Log:- "
 			uniq -c log.txt
 			rm log.txt
@@ -225,9 +255,9 @@ else
 	lazyhelp
 fi
 
-ls rocketscp &> /dev/null
-if ! ls rocketscp &> /dev/null; then
-	mv $me rocketscp
-else
+# ls rocketscp &> /dev/null
+if [ -f rocketscp ]; then
 	exit
+else
+	mv $me rocketscp
 fi 
