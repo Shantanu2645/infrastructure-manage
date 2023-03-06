@@ -18,11 +18,11 @@ Stay Present on:- "
 else
 
   weather=$(curl -s https://wttr.in/@ba-systems.com?format="%l:+%c+%t\n")
+  
+  echo -e "\033[0;33m$weather\033[0m"
 
   message="Dear All,
   
-  $weather
-
   I hope this letter finds you in the best of health and spirits. As we have been working
   together for quite some time now, I believe it's high time we catch up outside of work.
   Therefore, I would like to invite you to a dinner party.
