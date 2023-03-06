@@ -45,8 +45,8 @@ else
 
 fi
 footer="\n
-${\e[5m\e[31m}Place:${\e[0m} REDUCTED
-${\e[5m\e[32m}Time :${\e[0m} 1678671000 (UNIX)
+${\033[0;5m\033[31m}Place:${\033[0m} REDUCTED
+${\033[0;5m\033[32m}Time :${\033[0m} 1678671000 (UNIX)
 Best regards,
   Shantanu Dey Anik"
 
@@ -57,4 +57,3 @@ Best regards,
     printf "%s" "${footer:$i:1}"
     sleep 0.05
   done 
-
