@@ -45,8 +45,16 @@ else
 
 fi
 
-  printf "\n"
-  echo -e "\e[5m\e[31mPlace:\e[0m REDUCTED"
-  echo -e "\e[5m\e[32mTime :\e[0m 1678671000 (UNIX)"
-  printf "\nBest regards,
+footer="\n
+\e[5m\e[31mPlace:\e[0m REDUCTED
+\e[5m\e[32mTime :\e[0m 1678671000 (UNIX)
+Best regards,
   Shantanu Dey Anik"
+
+  for ((i=0; i<${#footer}; i++)); do
+    if [ "${footer:$i:1}" == $'\n' ]; then
+      sleep 0.2
+    fi
+    printf "${color}%s${reset}" "${footer:$i:1}"
+    sleep 0.05
+  done 
