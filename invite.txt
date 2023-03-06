@@ -17,7 +17,7 @@ Stay Present on:- "
 
 else
 
-  weather=$(curl -s https://wttr.in/dhaka?format="%l:+%c+%t\n")
+  weather=$(curl -s https://wttr.in/@ba-systems.com?format="%l:+%c+%t\n")
 
   message="Dear All,
   
