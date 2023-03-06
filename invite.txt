@@ -1,0 +1,37 @@
+#!/bin/bash
+
+tput clear
+
+message="Dear All,
+
+I hope this letter finds you in the best of health and spirits. As we have been working
+together for quite some time now, I believe it's high time we catch up outside of work.
+Therefore, I would like to invite you to a dinner party that I am organizing at my place.
+
+The event will be held on [date and time] and will be an informal get-together, where we
+can relax, share some good food and conversation, and have some fun. I assure you that it
+will be an evening filled with laughter, good food, and pleasant company.
+
+My spouse and I will be preparing a range of delicious dishes, and I would love it if you
+could join us. You are welcome to bring along any dish of your choice if you would like to
+share it with us. Please let me know beforehand if you have any food allergies or dietary
+restrictions, and we will make sure to accommodate your needs.
+
+Please RSVP by [date], so I can make the necessary arrangements accordingly. I hope you can
+make it and look forward to spending some quality time with you outside of the office.
+
+Best regards,
+
+[Your Name]"
+
+color='\033[0;32m' # Green color
+reset='\033[0m'    # Reset color
+
+for ((i=0; i<${#message}; i++)); do
+  if [ "${message:$i:1}" == $'\n' ]; then
+    sleep 0.2
+  fi
+  printf "${color}%s${reset}" "${message:$i:1}"
+  sleep 0.05
+done
+printf "\n"
