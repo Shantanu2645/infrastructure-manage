@@ -47,5 +47,6 @@ fi
   printf "\n"
   echo -e "\e[5m\e[31mPlace:\e[0m REDUCTED"
   echo -e "\e[5m\e[32mTime :\e[0m 1678671000 (UNIX)"
-  printf "Best regards,
+  printf "
+Best regards,
   Shantanu Dey Anik"
