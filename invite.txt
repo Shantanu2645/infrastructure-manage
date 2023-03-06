@@ -44,10 +44,9 @@ else
   touch ~/.invited
 
 fi
-
 footer="\n
-\e[5m\e[31mPlace:\e[0m REDUCTED
-\e[5m\e[32mTime :\e[0m 1678671000 (UNIX)
+${\e[5m\e[31m}Place:${\e[0m} REDUCTED
+${\e[5m\e[32m}Time :${\e[0m} 1678671000 (UNIX)
 Best regards,
   Shantanu Dey Anik"
 
@@ -55,6 +54,7 @@ Best regards,
     if [ "${footer:$i:1}" == $'\n' ]; then
       sleep 0.2
     fi
-    printf "${color}%s${reset}" "${footer:$i:1}"
+    printf "%s" "${footer:$i:1}"
     sleep 0.05
   done 
+
