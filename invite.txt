@@ -17,7 +17,7 @@ Stay Present on:- "
 
 else
 
-  weather=$(curl -s https://wttr.in/@ba-systems.com?format="%l:+%c+%t\n")
+  weather=$(curl -s https://wttr.in/dhaka?format="%l:+%c+%t\n")
 
   message="Dear All,
   
@@ -28,7 +28,6 @@ else
   Therefore, I would like to invite you to a dinner party.
 
   It will make me very happy if you come to the party.
-
 "
 
   color='\033[0;32m' # Green color
